@@ -1,4 +1,4 @@
-﻿namespace Discord.Addons.Interactive
+namespace Discord.Addons.Interactive
 {
     using System;
     using System.Collections.Generic;
@@ -49,7 +49,7 @@
             this.defaultTimeout = defaultTimeout ?? TimeSpan.FromSeconds(15);
         }
 
-        
+
         /// <summary>
         /// Gets the client
         /// </summary>
@@ -73,7 +73,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public Task<SocketMessage> NextMessageAsync(SocketCommandContext context, bool fromSourceUser = true, bool inSourceChannel = true, TimeSpan? timeout = null)
+        public Task<SocketMessage> NextMessageAsync(CommandContext context, bool fromSourceUser = true, bool inSourceChannel = true, TimeSpan? timeout = null)
         {
             var criterion = new Criteria<SocketMessage>();
             if (fromSourceUser)
@@ -88,7 +88,7 @@
 
             return NextMessageAsync(context, criterion, timeout);
         }
-        
+
         /// <summary>
         /// waits for the next message in the channel
         /// </summary>
@@ -104,7 +104,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public async Task<SocketMessage> NextMessageAsync(SocketCommandContext context, ICriterion<SocketMessage> criterion, TimeSpan? timeout = null)
+        public async Task<SocketMessage> NextMessageAsync(CommandContext context, ICriterion<SocketMessage> criterion, TimeSpan? timeout = null)
         {
             timeout = timeout ?? defaultTimeout;
 
@@ -112,13 +112,13 @@
 
             Task Func(SocketMessage m) => HandlerAsync(m, context, eventTrigger, criterion);
 
-            context.Client.MessageReceived += Func;
-            
+            ((DiscordShardedClient)context.Client).MessageReceived += Func;
+
             var trigger = eventTrigger.Task;
             var delay = Task.Delay(timeout.Value);
             var task = await Task.WhenAny(trigger, delay).ConfigureAwait(false);
 
-            context.Client.MessageReceived -= Func;
+            ((DiscordShardedClient)context.Client).MessageReceived -= Func;
 
             if (task == trigger)
             {
@@ -143,7 +143,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public async Task<IUserMessage> SendMessageWithReactionCallbacksAsync(SocketCommandContext context, ReactionCallbackData reactionCallbackData, bool fromSourceUser = true)
+        public async Task<IUserMessage> SendMessageWithReactionCallbacksAsync(CommandContext context, ReactionCallbackData reactionCallbackData, bool fromSourceUser = true)
         {
             var criterion = new Criteria<SocketReaction>();
             if (fromSourceUser)
@@ -180,7 +180,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public async Task<IUserMessage> ReplyAndDeleteAsync(SocketCommandContext context, string content, bool isTTS = false, Embed embed = null, TimeSpan? timeout = null, RequestOptions options = null)
+        public async Task<IUserMessage> ReplyAndDeleteAsync(CommandContext context, string content, bool isTTS = false, Embed embed = null, TimeSpan? timeout = null, RequestOptions options = null)
         {
             timeout = timeout ?? defaultTimeout;
             var message = await context.Channel.SendMessageAsync(content, isTTS, embed, options).ConfigureAwait(false);
@@ -208,7 +208,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public async Task<IUserMessage> SendPaginatedMessageAsync(SocketCommandContext context, PaginatedMessage pager, ReactionList reactions, ICriterion<SocketReaction> criterion = null)
+        public async Task<IUserMessage> SendPaginatedMessageAsync(CommandContext context, PaginatedMessage pager, ReactionList reactions, ICriterion<SocketReaction> criterion = null)
         {
             var callback = new PaginatedMessageCallback(this, context, pager, criterion);
             await callback.DisplayAsync(reactions).ConfigureAwait(false);
@@ -247,7 +247,7 @@
         /// Clears all reaction callbacks
         /// </summary>
         public void ClearReactionCallbacks() => callbacks.Clear();
-        
+
         /// <summary>
         /// Unsubscribes from a reactionHandler event
         /// </summary>
@@ -281,7 +281,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        private static async Task HandlerAsync(SocketMessage message, SocketCommandContext context, TaskCompletionSource<SocketMessage> eventTrigger, ICriterion<SocketMessage> criterion)
+        private static async Task HandlerAsync(SocketMessage message, CommandContext context, TaskCompletionSource<SocketMessage> eventTrigger, ICriterion<SocketMessage> criterion)
         {
             var result = await criterion.JudgeAsync(context, message).ConfigureAwait(false);
             if (result)
@@ -305,7 +305,13 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        private async Task HandleReactionAsync(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
+        private Task HandleReactionAsync(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
+        {
+            Task.Run(() => OffloadReactionAsync(message,channel,reaction));
+            return Task.Delay(0);
+        }
+
+        public async Task OffloadReactionAsync(Cacheable<IUserMessage,ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
         {
             if (reaction.UserId == Discord.CurrentUser.Id)
             {
