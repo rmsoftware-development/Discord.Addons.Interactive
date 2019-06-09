@@ -19,7 +19,7 @@ namespace Discord.Addons.Interactive
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public Task<bool> JudgeAsync(SocketCommandContext sourceContext, T parameter)
+        public Task<bool> JudgeAsync(CommandContext sourceContext, T parameter)
             => Task.FromResult(true);
     }
 }

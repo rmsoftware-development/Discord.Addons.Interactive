@@ -21,7 +21,7 @@ namespace Discord.Addons.Interactive
         /// <returns>
         /// True if user is author
         /// </returns>
-        public Task<bool> JudgeAsync(SocketCommandContext sourceContext, SocketMessage parameter)
+        public Task<bool> JudgeAsync(CommandContext sourceContext, SocketMessage parameter)
         {
             bool ok = id == parameter.Author.Id;
             return Task.FromResult(ok);

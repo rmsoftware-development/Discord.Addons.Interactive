@@ -4,12 +4,11 @@ namespace Discord.Addons.Interactive
     using System.Threading.Tasks;
 
     using Discord.Commands;
-    using Discord.WebSocket;
 
-    public class EnsureSourceChannelCriterion : ICriterion<SocketMessage>
+    public interface ICriterion<in T>
     {
         /// <summary>
-        /// Returns true if the channel is the source channel
+        /// The judge async.
         /// </summary>
         /// <param name="sourceContext">
         /// The source context.
@@ -20,10 +19,6 @@ namespace Discord.Addons.Interactive
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public Task<bool> JudgeAsync(CommandContext sourceContext, SocketMessage parameter)
-        {
-            var ok = sourceContext.Channel.Id == parameter.Channel.Id;
-            return Task.FromResult(ok);
-        }
+        Task<bool> JudgeAsync(CommandContext sourceContext, T parameter);
     }
 }
