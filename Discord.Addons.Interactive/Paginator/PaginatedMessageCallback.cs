@@ -38,12 +38,12 @@ namespace Discord.Addons.Interactive
         /// The current page.
         /// </summary>
         private int page = 1;
-        
+
         /// <summary>
         /// The paginated message
         /// </summary>
         private readonly PaginatedMessage pager;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PaginatedMessageCallback"/> class.
         /// </summary>
@@ -59,8 +59,8 @@ namespace Discord.Addons.Interactive
         /// <param name="criterion">
         /// The criterion.
         /// </param>
-        public PaginatedMessageCallback(InteractiveService interactive, 
-            SocketCommandContext sourceContext,
+        public PaginatedMessageCallback(InteractiveService interactive,
+            CommandContext sourceContext,
             PaginatedMessage pager,
             ICriterion<SocketReaction> criterion = null)
         {
@@ -74,18 +74,18 @@ namespace Discord.Addons.Interactive
         /// <summary>
         /// Gets the command context.
         /// </summary>
-        public SocketCommandContext Context { get; }
+        public CommandContext Context { get; }
 
         /// <summary>
         /// Gets the interactive service.
         /// </summary>
         public InteractiveService Interactive { get; }
-        
+
         /// <summary>
         /// Gets the criterion.
         /// </summary>
         public ICriterion<SocketReaction> Criterion { get; }
-        
+
         /// <summary>
         /// Gets the message.
         /// </summary>
@@ -139,7 +139,7 @@ namespace Discord.Addons.Interactive
             });
             if (Timeout.HasValue)
             {
-                DisplayTimeout(message, Message);
+                DisplayTimeout((RestUserMessage)message, Message);
             }
         }
 
