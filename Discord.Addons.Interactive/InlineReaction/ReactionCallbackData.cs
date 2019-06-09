@@ -14,7 +14,7 @@ namespace Discord.Addons.Interactive
     {
         private ICollection<ReactionCallbackItem> items;
 
-        public ReactionCallbackData(string text, Embed embed = null, bool expiresAfterUse = true, bool singleUsePerUser = true, TimeSpan? timeout = null, Func<SocketCommandContext, Task> timeoutCallback = null)
+        public ReactionCallbackData(string text, Embed embed = null, bool expiresAfterUse = true, bool singleUsePerUser = true, TimeSpan? timeout = null, Func<CommandContext, Task> timeoutCallback = null)
         {
             if (text == null && embed == null)
             {
@@ -38,9 +38,9 @@ namespace Discord.Addons.Interactive
         public string Text { get; }
         public Embed Embed { get; }
         public TimeSpan? Timeout { get; }
-        public Func<SocketCommandContext, Task> TimeoutCallback { get; }
+        public Func<CommandContext, Task> TimeoutCallback { get; }
 
-        public ReactionCallbackData AddCallbacks(IEnumerable<(IEmote, Func<SocketCommandContext, SocketReaction, Task>)> callbacks)
+        public ReactionCallbackData AddCallbacks(IEnumerable<(IEmote, Func<CommandContext, SocketReaction, Task>)> callbacks)
         {
             foreach (var callback in callbacks)
             {
@@ -50,19 +50,19 @@ namespace Discord.Addons.Interactive
             return this;
         }
 
-        public ReactionCallbackData SetCallbacks(IEnumerable<(IEmote, Func<SocketCommandContext, SocketReaction, Task>)> callbacks)
+        public ReactionCallbackData SetCallbacks(IEnumerable<(IEmote, Func<CommandContext, SocketReaction, Task>)> callbacks)
         {
             items = callbacks.Select(x => new ReactionCallbackItem(x.Item1, x.Item2)).ToList();
             return this;
         }
 
-        public ReactionCallbackData AddCallBack(IEmote reaction, Func<SocketCommandContext, SocketReaction, Task> callback)
+        public ReactionCallbackData AddCallBack(IEmote reaction, Func<CommandContext, SocketReaction, Task> callback)
         {
             items.Add(new ReactionCallbackItem(reaction, callback));
             return this;
         }
 
-        public ReactionCallbackData WithCallback(IEmote reaction, Func<SocketCommandContext, SocketReaction, Task> callback)
+        public ReactionCallbackData WithCallback(IEmote reaction, Func<CommandContext, SocketReaction, Task> callback)
         {
             var item = new ReactionCallbackItem(reaction, callback);
             items.Add(item);

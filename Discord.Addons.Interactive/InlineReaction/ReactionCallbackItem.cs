@@ -19,7 +19,7 @@
         /// <summary>
         /// Gets the callback.
         /// </summary>
-        public Func<SocketCommandContext, SocketReaction, Task> Callback { get; }
+        public Func<CommandContext, SocketReaction, Task> Callback { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReactionCallbackItem"/> class.
@@ -30,7 +30,7 @@
         /// <param name="callback">
         /// The callback.
         /// </param>
-        public ReactionCallbackItem(IEmote reaction, Func<SocketCommandContext, SocketReaction, Task> callback)
+        public ReactionCallbackItem(IEmote reaction, Func<CommandContext, SocketReaction, Task> callback)
         {
             Reaction = reaction;
             Callback = callback;

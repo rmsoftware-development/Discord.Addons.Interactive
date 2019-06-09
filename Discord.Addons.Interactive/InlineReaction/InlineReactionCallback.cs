@@ -39,7 +39,7 @@
         /// </param>
         public InlineReactionCallback(
             InteractiveService interactive,
-            SocketCommandContext context,
+            CommandContext context,
             ReactionCallbackData data,
             ICriterion<SocketReaction> criterion = null)
         {
@@ -68,7 +68,7 @@
         /// <summary>
         /// Gets the context.
         /// </summary>
-        public SocketCommandContext Context { get; }
+        public CommandContext Context { get; }
 
         /// <summary>
         /// Gets the message.
@@ -99,10 +99,10 @@
             {
                 _ = Task.Delay(Timeout.Value)
                     .ContinueWith(_ =>
-                        {
-                            interactive.RemoveReactionCallback(message);
-                            data.TimeoutCallback?.Invoke(Context);
-                        });
+                    {
+                        interactive.RemoveReactionCallback(message);
+                        data.TimeoutCallback?.Invoke(Context);
+                    });
             }
         }
 
